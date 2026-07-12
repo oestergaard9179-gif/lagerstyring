@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './', // Gør stien relativ, så det virker fejlfrit både lokalt og på GitHub Pages
+  base: '/lagerstyring/', // Sætter base path til GitHub Pages repository-navnet for korrekt deploy
   plugins: [
     react(),
     tailwindcss(),
