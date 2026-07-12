@@ -15,6 +15,24 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
 
   const [returAmounts, setReturAmounts] = useState<Record<number, number>>({});
 
+  const [blanketSettings, setBlanketSettings] = useState<BlanketOptions>({
+    prioritet: 'Rutine',
+    dato: new Date().toISOString().split('T')[0],
+    fra: 'MHV 909',
+    til: 'FSC / FMI',
+    emneRekvirering: false,
+    emneIntern: false,
+    emneLevering: false,
+    emneTilbagelevering: true,
+    emneOverfoersel: false,
+    emneLaan: false,
+    indkoebRammeaftale: false,
+    indkoebCivil: false,
+    indkoebSaerlig: false,
+    indkoebBeredskab: false,
+    bemaerkninger: 'Kassation (Centralt med besigtigelse)'
+  });
+
   const itemsWithRetur = kassationItems.map(item => {
     const amountToReturn = returAmounts[item.id] !== undefined ? returAmounts[item.id] : (item.antal_retur || 0);
     return {
@@ -26,24 +44,6 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
   const exportItems = itemsWithRetur.filter(item => item.amountToReturn > 0);
 
   const handleGenerateReturPDF = () => {
-    const options: BlanketOptions = {
-      prioritet: 'Rutine',
-      dato: new Date().toISOString().split('T')[0],
-      fra: 'MHV 909',
-      til: 'FSC / FMI',
-      emneRekvirering: false,
-      emneIntern: false,
-      emneLevering: false,
-      emneTilbagelevering: true,
-      emneOverfoersel: false,
-      emneLaan: false,
-      indkoebRammeaftale: false,
-      indkoebCivil: false,
-      indkoebSaerlig: false,
-      indkoebBeredskab: false,
-      bemaerkninger: 'Kassation (Centralt med besigtigelse)'
-    };
-
     const finalExport = exportItems.map(item => ({
       ...item,
       antal_retur: item.amountToReturn,
@@ -55,7 +55,7 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
       return;
     }
 
-    generateForsyningsblanket(options, finalExport, true);
+    generateForsyningsblanket(blanketSettings, finalExport, true);
   };
 
   return (
@@ -77,6 +77,158 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
           </button>
         )}
       </div>
+
+      {kassationItems.length > 0 && (
+        <div className="p-6 md:p-8 bg-slate-50/50 border-b-2 border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-slate-700">Fra (Afsender):</label>
+            <input 
+              type="text" 
+              value={blanketSettings.fra} 
+              onChange={e => setBlanketSettings(prev => ({ ...prev, fra: e.target.value }))}
+              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-slate-700">Til (Modtager):</label>
+            <input 
+              type="text" 
+              value={blanketSettings.til} 
+              onChange={e => setBlanketSettings(prev => ({ ...prev, til: e.target.value }))}
+              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-slate-700">Prioritet:</label>
+            <select 
+              value={blanketSettings.prioritet} 
+              onChange={e => setBlanketSettings(prev => ({ ...prev, prioritet: e.target.value }))}
+              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-bold text-slate-800 bg-white"
+            >
+              <option value="Rutine">Rutine</option>
+              <option value="Høj">Høj</option>
+              <option value="Lyn">Lyn</option>
+            </select>
+          </div>
+          <div className="space-y-2 col-span-1 md:col-span-2">
+            <label className="block text-sm font-bold text-slate-700">Bemærkninger / Reference:</label>
+            <input 
+              type="text" 
+              value={blanketSettings.bemaerkninger} 
+              onChange={e => setBlanketSettings(prev => ({ ...prev, bemaerkninger: e.target.value }))}
+              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-slate-700">Dato:</label>
+            <input 
+              type="date" 
+              value={blanketSettings.dato} 
+              onChange={e => setBlanketSettings(prev => ({ ...prev, dato: e.target.value }))}
+              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+            />
+          </div>
+
+          <div className="col-span-1 md:col-span-2 lg:col-span-3 border-t-2 border-slate-100 pt-4">
+            <span className="block text-sm font-bold text-slate-700 mb-3">Emne & Indkøbsmetode</span>
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.emneRekvirering} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, emneRekvirering: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Rekvirering
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.emneIntern} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, emneIntern: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Intern
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.emneLevering} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, emneLevering: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Levering
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.emneTilbagelevering} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, emneTilbagelevering: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Tilbagelevering
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.emneOverfoersel} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, emneOverfoersel: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Overførsel
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.emneLaan} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, emneLaan: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Lån
+              </label>
+            </div>
+            
+            <div className="flex flex-wrap gap-x-6 gap-y-3 mt-4 border-t border-dashed border-slate-200 pt-3">
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.indkoebRammeaftale} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, indkoebRammeaftale: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Rammeaftale
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.indkoebCivil} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, indkoebCivil: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Civil leverandør
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.indkoebSaerlig} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, indkoebSaerlig: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Særlig bemyndigelse
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-slate-600">
+                <input 
+                  type="checkbox" 
+                  checked={blanketSettings.indkoebBeredskab} 
+                  onChange={e => setBlanketSettings(prev => ({ ...prev, indkoebBeredskab: e.target.checked }))}
+                  className="w-4 h-4 cursor-pointer accent-blue-600"
+                />
+                Beredskab
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
 
       {kassationItems.length === 0 ? (
         <div className="p-20 text-center bg-slate-50/50">

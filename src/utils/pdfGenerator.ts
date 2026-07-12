@@ -28,82 +28,123 @@ export const generateForsyningsblanket = (options: BlanketOptions, dataList: (It
   // Formatér dato fra YYYY-MM-DD til DD-MM-YYYY
   const formattedDate = options.dato ? options.dato.split('-').reverse().join('-') : '';
 
-  // --- HEADER (Venstre) ---
+  // --- TOP TEKSTER (VENSTRE) ---
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('HJEMMEVÆRNSKOMMANDOEN\nHJVBST 602-002\nBILAG 6\nForsyningsblanket A4\nHJEMMEVÆRNET', 14, 15);
-
-  // --- HEADER (Højre) ---
-  doc.text('Prioritet', 150, 15);
-  doc.setFont('helvetica', 'bold');
-  doc.text(options.prioritet, 170, 15);
+  doc.text('HJEMMEVÆRNSKOMMANDOEN', 14, 10);
   
-  doc.setFont('helvetica', 'normal');
-  doc.text('Dato', 150, 20);
-  doc.setFont('helvetica', 'bold');
-  doc.text(formattedDate, 170, 20);
-
-  // --- TITEL ---
-  doc.setFontSize(16);
-  doc.text('FORSYNINGSBLANKET (FB)', 105, 32, { align: 'center' });
-
-  // --- BOKSE OPBYGNING ---
-  doc.setLineWidth(0.3);
-
-  // BOKS 1: FRA
-  doc.rect(14, 38, 80, 15);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.text('FRA:', 16, 42);
-  doc.setFont('helvetica', 'bold');
-  doc.text(options.fra, 16, 49);
-
-  // BOKS 2: TIL
-  doc.rect(14, 53, 80, 15);
-  doc.setFont('helvetica', 'normal');
-  doc.text('TIL:', 16, 57);
-  doc.setFont('helvetica', 'bold');
-  doc.text(options.til, 16, 64);
-
-  // BOKS 3: EMNE
-  doc.rect(94, 38, 102, 15);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Emne (sæt kryds)', 96, 42);
+  doc.setFont('helvetica', 'bolditalic');
+  doc.setFontSize(11);
+  doc.text('Forsyningsblanket A4', 14, 15);
   
-  const drawCheckbox = (x: number, y: number, label: string, isChecked: boolean) => {
-    doc.rect(x, y, 4, 4);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text('HJEMMEVÆRNET', 14, 21);
+  
+  doc.setFontSize(13);
+  doc.text('FORSYNINGSBLANKET (FB)', 14, 29);
+
+  // --- TOP TEKSTER (HØJRE) ---
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.text('HJVBST 602-002', 196, 10, { align: 'right' });
+  doc.setFont('helvetica', 'bold');
+  doc.text('BILAG 6', 196, 14, { align: 'right' });
+
+  // --- TOP BOKSE OPBYGNING ---
+  doc.setLineWidth(0.2);
+
+  // Box helper
+  const drawBoxRef = (x: number, y: number, w: number, h: number, refNum: string) => {
+    doc.rect(x, y, w, h);
     doc.setFont('helvetica', 'normal');
-    doc.text(label, x + 6, y + 3);
+    doc.setFontSize(6);
+    doc.text(refNum, x + w - 1.5, y + 2.5, { align: 'right' });
+  };
+
+  // BOKS 1: PRIORITET
+  drawBoxRef(110, 18, 28, 14, '1');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Prioritet', 112, 22);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text(options.prioritet, 124, 28, { align: 'center' });
+
+  // BOKS 2: DATO
+  drawBoxRef(138, 18, 28, 14, '2');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Dato', 140, 22);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text(formattedDate, 152, 28, { align: 'center' });
+
+  // BOKS 3: TOM
+  drawBoxRef(166, 18, 30, 14, '3');
+
+  // BOKS 4: FRA
+  drawBoxRef(14, 34, 80, 16, '4');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('FRA:', 16, 38);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text(options.fra, 16, 45);
+
+  // BOKS 5: TIL
+  drawBoxRef(14, 50, 80, 16, '5');
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('TIL:', 16, 54);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text(options.til, 16, 61);
+
+  // BOKS 6: EMNE & INDKØB
+  drawBoxRef(94, 34, 102, 32, '6');
+  
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Emne (sæt kryds)', 96, 38);
+  doc.text('Indkøb ved:', 145, 38);
+
+  const drawCheckbox = (x: number, y: number, label: string, isChecked: boolean) => {
+    doc.rect(x, y, 3.2, 3.2);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text(label, x + 5, y + 2.5);
     if (isChecked) {
       doc.setFont('helvetica', 'bold');
-      doc.text('X', x + 1, y + 3.2);
+      doc.setFontSize(8);
+      doc.text('X', x + 0.6, y + 2.5);
     }
   };
 
-  drawCheckbox(96, 45, 'Rekvirering', options.emneRekvirering);
-  drawCheckbox(132, 45, 'Intern', options.emneIntern);
-  drawCheckbox(164, 45, 'Levering', options.emneLevering); 
-  
-  drawCheckbox(96, 50, 'Tilbagelevering', options.emneTilbagelevering);
-  drawCheckbox(132, 50, 'Overførsel', options.emneOverfoersel);
-  drawCheckbox(164, 50, 'Lån', options.emneLaan);
+  // Venstre side i Boks 6 (Emner)
+  drawCheckbox(96, 41, 'Rekvirering', options.emneRekvirering);
+  drawCheckbox(96, 46, 'Intern', options.emneIntern);
+  drawCheckbox(96, 51, 'Levering', options.emneLevering); 
+  drawCheckbox(96, 56, 'Tilbagelevering', options.emneTilbagelevering);
+  drawCheckbox(96, 61, 'Overførsel', options.emneOverfoersel);
+  drawCheckbox(96, 66, 'Lån', options.emneLaan);
 
-  // BOKS 4: INDKØB VED
-  doc.rect(94, 53, 102, 15);
+  // Højre side i Boks 6 (Indkøb ved)
+  drawCheckbox(145, 41, 'Rammeaftale*', options.indkoebRammeaftale);
+  drawCheckbox(145, 46, 'Civil leverandør*', options.indkoebCivil);
+  drawCheckbox(145, 51, 'Særlig bemyndigelse*', options.indkoebSaerlig);
+  drawCheckbox(145, 56, 'Beredskab*', options.indkoebBeredskab);
+
+  // BOKS 7: BEMÆRKNINGER
+  drawBoxRef(14, 68, 182, 12, '7');
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.text('Indkøb ved:', 96, 57);
-  drawCheckbox(96, 60, 'Rammeaftale*', options.indkoebRammeaftale);
-  drawCheckbox(140, 60, 'Civil leverandør*', options.indkoebCivil);
-  drawCheckbox(96, 65, 'Særlig bemyndigelse*', options.indkoebSaerlig);
-  drawCheckbox(140, 65, 'Beredskab*', options.indkoebBeredskab);
-
-  // BOKS 5: BEMÆRKNINGER
-  doc.rect(14, 68, 182, 12);
-  doc.text('Bemærkninger (Reference*):', 16, 72);
+  doc.text('Bemærkninger (Reference*)', 16, 72);
   doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
   doc.text(options.bemaerkninger, 16, 77);
 
-  // --- TABEL ---
+  // --- TABEL MED OPKREVEDE SPLIT-KOLONNER (Boks 8-14) ---
   const tableData = dataList.map(item => {
     let antal = isRetur ? (item.antal_retur || 0) : (item.amountToOrder || 0);
 
@@ -117,20 +158,48 @@ export const generateForsyningsblanket = (options: BlanketOptions, dataList: (It
   });
 
   autoTable(doc, {
-    startY: 85,
-    head: [['Lagernummer', 'Genstandsnavn', 'Lenh.', 'Antal', 'Lev.', 'Modt.', 'IO', 'RO', 'Vedtegning', 'Evt. PRIS']],
+    startY: 83,
+    head: [
+      [
+        { content: 'Lagernummer   8', rowSpan: 2, styles: { halign: 'center', valign: 'middle', fontStyle: 'bold' } },
+        { content: 'Genstandsnavn   9', rowSpan: 2, styles: { halign: 'center', valign: 'middle', fontStyle: 'bold' } },
+        { content: 'Lenh.  10', rowSpan: 2, styles: { halign: 'center', valign: 'middle', fontStyle: 'bold' } },
+        { content: 'Antal  11', rowSpan: 2, styles: { halign: 'center', valign: 'middle', fontStyle: 'bold' } },
+        { content: 'Lev. 12', styles: { halign: 'center', fontStyle: 'bold' } },
+        { content: 'IO 13', styles: { halign: 'center', fontStyle: 'bold' } },
+        { content: 'Vedtegning   14', styles: { halign: 'center', fontStyle: 'bold' } }
+      ],
+      [
+        { content: 'Modt.', styles: { halign: 'center', fontStyle: 'bold' } },
+        { content: 'RO', styles: { halign: 'center', fontStyle: 'bold' } },
+        { content: 'Evt. PRIS', styles: { halign: 'center', fontStyle: 'bold' } }
+      ]
+    ],
     body: tableData,
     theme: 'plain', 
-    styles: { lineColor: [0, 0, 0], lineWidth: 0.2, fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
+    styles: { lineColor: [0, 0, 0], lineWidth: 0.2, fontSize: 8, cellPadding: 2, textColor: [0, 0, 0] },
+    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.2 },
     columnStyles: {
       0: { cellWidth: 28, halign: 'left' },
       1: { cellWidth: 'auto', halign: 'left' },
-      2: { cellWidth: 10, halign: 'center' },
+      2: { cellWidth: 12, halign: 'center' },
       3: { cellWidth: 12, halign: 'center', fontStyle: 'bold' },
-      4: { cellWidth: 10 }, 5: { cellWidth: 10 }, 6: { cellWidth: 10 }, 7: { cellWidth: 10 }, 8: { cellWidth: 18 }, 9: { cellWidth: 18 }
+      4: { cellWidth: 12 }, 
+      5: { cellWidth: 12 }, 
+      6: { cellWidth: 28 }
     }
   });
+
+  // --- BUND REFerencer (15, 16, 17, 18) ---
+  doc.setLineWidth(0.2);
+  doc.line(14, 282, 196, 282); // Bund linje
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+  doc.text('15', 28, 285);
+  doc.text('16', 80, 285);
+  doc.text('17', 128, 285);
+  doc.text('18', 170, 285);
 
   const prefix = isRetur ? 'Tilbagelevering' : 'Bestilling';
   doc.save(`${prefix}_MHV909_.pdf`);
