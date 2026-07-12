@@ -71,7 +71,7 @@ export default function App() {
                         Koncernpris: String(item.koncernpris || item.Koncernpris || '0').replace(',', '.'),
             maengde: parsedNorm,
             bestilt: item.antal_bestilt || item.bestilt || item.Bestilt || 0,
-            lenh: item.lenh || item.Lenh || 'EA',
+            lenh: item.me || item.ME || item.lenh || item.Lenh || 'EA',
             antal_retur: item.antal_retur || item.Antal_retur || 0,
             kassationsmetode: item.kassationsmetode || item.Kassationsmetode || ''
           }
@@ -545,9 +545,11 @@ export default function App() {
     <div className="min-h-screen bg-slate-100 p-2 md:p-4 lg:p-6 font-sans pb-20">
       <div className="max-w-[1400px] mx-auto">
         
-        {/* APP HEADER */}
-        <header className="bg-slate-900 text-white p-3 md:p-4 rounded-xl shadow-md mb-4 sticky top-2 z-50 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-blue-600">
-          <div className="flex items-center justify-between w-full md:w-auto">
+        {/* FASTLÅST CONTAINER FOR HEADER OG SØGEBAR */}
+        <div className="sticky top-0 z-50 bg-slate-100/95 backdrop-blur-sm pt-2 pb-1 mb-4">
+          {/* APP HEADER */}
+          <header className="bg-slate-900 text-white p-3 md:p-4 rounded-xl shadow-md mb-3 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-blue-600">
+            <div className="flex items-center justify-between w-full md:w-auto">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-slate-800 rounded-lg hidden sm:block shadow-inner">
                 {role === 'skib' ? <ShipIcon /> : <HelmIcon />}
@@ -584,17 +586,18 @@ export default function App() {
           </div>
         </header>
 
+        {/* SØGEFELT */}
+        {(activeTab !== 'bestilling' && activeTab !== 'afventer' && activeTab !== 'plukliste') && (
+          <div className="mb-2">
+            <input type="text" placeholder="Søg på varenr eller komponentnavn..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm focus:outline-none focus:border-blue-500 text-sm md:text-base transition-colors" />
+          </div>
+        )}
+        </div>
+
         {loading ? (
           <div className="text-center p-12 text-slate-500 text-lg font-bold animate-pulse">Henter data fra databasen...</div>
         ) : (
           <>
-            {/* SØGEFELT */}
-            {(activeTab !== 'bestilling' && activeTab !== 'afventer' && activeTab !== 'plukliste') && (
-              <div className="mb-4">
-                <input type="text" placeholder="Søg på varenr eller komponentnavn..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm focus:outline-none focus:border-blue-500 text-sm md:text-base transition-colors" />
-              </div>
-            )}
-
             {/* TAB VIEWS */}
             {activeTab === 'forbrug' && (
               <ForbrugTab 

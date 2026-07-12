@@ -242,6 +242,27 @@ return (
         </div>
       )}
 
+      {draftOrderList.length > 0 && (
+        <div className="p-4 bg-blue-50/80 border-b border-blue-100 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center sm:text-left shadow-inner">
+          <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-sm">
+            <span className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Antal Linjer Valgt</span>
+            <span className="text-xl md:text-2xl font-extrabold text-blue-900">{itemsToOrder.length} / {draftOrderList.length}</span>
+          </div>
+          <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-sm">
+            <span className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Samlet Mængde (Komponenter)</span>
+            <span className="text-xl md:text-2xl font-extrabold text-blue-900">
+              {itemsToOrder.reduce((sum, item) => sum + item.amountToOrder, 0).toLocaleString('da-DK')} <span className="text-slate-400 font-medium text-sm">enheder</span>
+            </span>
+          </div>
+          <div className="bg-white p-3.5 rounded-xl border border-blue-100 shadow-sm col-span-1 sm:col-span-2 md:col-span-1">
+            <span className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Total Beløb (Koncernpris)</span>
+            <span className="text-xl md:text-2xl font-extrabold text-emerald-700">
+              {itemsToOrder.reduce((sum, item) => sum + (parseFloat(item.Koncernpris) || 0) * item.amountToOrder, 0).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr.
+            </span>
+          </div>
+        </div>
+      )}
+
       {draftOrderList.length === 0 ? (
         <div className="p-20 text-center bg-slate-50/50">
           <div className="inline-block p-6 bg-emerald-100 text-emerald-600 rounded-full mb-6 shadow-sm border-4 border-emerald-50">
@@ -252,21 +273,26 @@ return (
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[950px]">
+          <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead>
               <tr className="bg-slate-800 text-white text-xs uppercase tracking-widest font-bold">
                 <th className="p-2 border-b border-slate-900 text-center w-12">✓</th>
                 <th className="p-3 border-b border-slate-900">Varenummer</th>
                 <th className="p-3 border-b border-slate-900">Beskrivelse</th>
+                <th className="p-3 border-b border-slate-900 text-center">ME</th>
                 <th className="p-3 border-b border-slate-900 text-center">Norm</th>
                 <th className="p-3 border-b border-slate-900 text-center">Lager</th>
                 <th className="p-3 border-b border-slate-900 text-center text-amber-300">Restordre</th>
+                <th className="p-3 border-b border-slate-900 text-right">Koncernpris / ME</th>
+                <th className="p-3 border-b border-slate-900 text-right">Sumpris</th>
                 <th className="p-3 border-b border-slate-900 text-center bg-blue-700 shadow-inner">Antal</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {draftOrderList.map(item => {
                 const beholdning = item.antal_skib + item.antal_container;
+                const unitPrice = parseFloat(item.Koncernpris) || 0;
+                const lineSum = unitPrice * item.amountToOrder;
                 
                 return (
                   <tr key={item.id} className={`transition-colors group ${item.selected ? 'hover:bg-blue-50/30' : 'bg-slate-50/50 opacity-60 grayscale'}`}>
@@ -280,9 +306,12 @@ return (
                     </td>
                     <td className="p-3 font-mono text-xs text-slate-500 font-bold group-hover:text-slate-800 transition-colors">{item.komponentnummer}</td>
                     <td className="p-3 font-bold text-slate-700 text-xs md:text-sm">{item.objektkorttekst}</td>
+                    <td className="p-3 text-center font-bold text-slate-600 text-xs uppercase">{item.lenh || 'EA'}</td>
                     <td className="p-3 text-center text-slate-500 font-mono font-bold text-xs">{item.maengde}</td>
                     <td className="p-3 text-center text-slate-600 font-mono font-bold text-xs">{beholdning}</td>
                     <td className="p-3 text-center text-amber-600 font-mono font-bold text-xs">{item.bestilt}</td>
+                    <td className="p-3 text-right font-mono text-xs text-slate-600">{unitPrice.toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr.</td>
+                    <td className="p-3 text-right font-mono text-xs font-bold text-slate-800">{lineSum.toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr.</td>
                     <td className="p-2 text-center bg-blue-50/50 border-l border-blue-100 shadow-sm">
                       <div className="flex justify-center">
                         <CounterBlock 
