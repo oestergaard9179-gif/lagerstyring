@@ -60,10 +60,10 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-xl border-2 border-slate-200 overflow-hidden">
-      <div className="p-6 md:p-8 bg-slate-50 border-b-4 border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+      <div className="p-3.5 md:p-4 bg-slate-50 border-b-2 border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-slate-800">Kassation</h2>
-          <p className="text-slate-500 mt-2 font-medium">
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-800">Kassation</h2>
+          <p className="text-slate-500 mt-1 font-medium text-xs md:text-sm">
             Oversigt over varer med kassationsmetoden "Centralt med besigtigelse". Angiv returantal og generer tilbageleveringsblanket.
           </p>
         </div>
@@ -71,7 +71,7 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
           <button
             onClick={handleGenerateReturPDF}
             disabled={exportItems.length === 0}
-            className="flex items-center justify-center gap-2 bg-red-700 text-white px-6 py-4 rounded-xl font-bold hover:bg-red-600 shadow-lg transition-colors border border-red-800 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-bold hover:bg-red-600 shadow-lg transition-colors border border-red-800 disabled:opacity-50"
           >
             Generér Retur Blanket ({exportItems.length})
           </button>
@@ -79,53 +79,53 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
       </div>
 
       {kassationItems.length > 0 && (
-        <div className="p-6 md:p-8 bg-slate-50/50 border-b-2 border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-700">Fra (Afsender):</label>
+        <div className="p-3.5 md:p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-700">Fra (Afsender):</label>
             <input 
               type="text" 
               value={blanketSettings.fra} 
               onChange={e => setBlanketSettings(prev => ({ ...prev, fra: e.target.value }))}
-              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+              className="w-full p-2 rounded-md border border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-xs md:text-sm text-slate-800 bg-white"
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-700">Til (Modtager):</label>
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-700">Til (Modtager):</label>
             <input 
               type="text" 
               value={blanketSettings.til} 
               onChange={e => setBlanketSettings(prev => ({ ...prev, til: e.target.value }))}
-              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+              className="w-full p-2 rounded-md border border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-xs md:text-sm text-slate-800 bg-white"
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-700">Prioritet:</label>
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-700">Prioritet:</label>
             <select 
               value={blanketSettings.prioritet} 
               onChange={e => setBlanketSettings(prev => ({ ...prev, prioritet: e.target.value }))}
-              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-bold text-slate-800 bg-white"
+              className="w-full p-2 rounded-md border border-slate-200 focus:border-blue-500 focus:outline-none font-bold text-xs md:text-sm text-slate-800 bg-white"
             >
               <option value="Rutine">Rutine</option>
               <option value="Høj">Høj</option>
               <option value="Lyn">Lyn</option>
             </select>
           </div>
-          <div className="space-y-2 col-span-1 md:col-span-2">
-            <label className="block text-sm font-bold text-slate-700">Bemærkninger / Reference:</label>
+          <div className="space-y-1 col-span-1 md:col-span-2">
+            <label className="block text-xs font-bold text-slate-700">Bemærkninger / Reference:</label>
             <input 
               type="text" 
               value={blanketSettings.bemaerkninger} 
               onChange={e => setBlanketSettings(prev => ({ ...prev, bemaerkninger: e.target.value }))}
-              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+              className="w-full p-2 rounded-md border border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-xs md:text-sm text-slate-800 bg-white"
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-700">Dato:</label>
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-700">Dato:</label>
             <input 
               type="date" 
               value={blanketSettings.dato} 
               onChange={e => setBlanketSettings(prev => ({ ...prev, dato: e.target.value }))}
-              className="w-full p-2.5 rounded-lg border-2 border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-slate-800 bg-white"
+              className="w-full p-2 rounded-md border border-slate-200 focus:border-blue-500 focus:outline-none font-medium text-xs md:text-sm text-slate-800 bg-white"
             />
           </div>
 
@@ -245,26 +245,26 @@ export const KassationTab: React.FC<KassationTabProps> = ({ items }) => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
-              <tr className="bg-slate-800 text-white text-sm uppercase tracking-widest font-bold">
-                <th className="p-5 border-b-2 border-slate-900">Varenummer</th>
-                <th className="p-5 border-b-2 border-slate-900">Beskrivelse</th>
-                <th className="p-5 border-b-2 border-slate-900 text-center">Norm</th>
-                <th className="p-5 border-b-2 border-slate-900 text-center">Beholdning (Skib+Cont)</th>
-                <th className="p-5 border-b-2 border-slate-900 text-center">Kassationsmetode</th>
-                <th className="p-5 border-b-2 border-slate-900 text-center bg-red-700 shadow-inner">Returantal</th>
+              <tr className="bg-slate-800 text-white text-xs uppercase tracking-widest font-bold">
+                <th className="p-3 border-b border-slate-900">Varenummer</th>
+                <th className="p-3 border-b border-slate-900">Beskrivelse</th>
+                <th className="p-3 border-b border-slate-900 text-center">Norm</th>
+                <th className="p-3 border-b border-slate-900 text-center">Lager</th>
+                <th className="p-3 border-b border-slate-900 text-center">Kassation</th>
+                <th className="p-3 border-b border-slate-900 text-center bg-red-700 shadow-inner">Returantal</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-slate-100">
+            <tbody className="divide-y divide-slate-100">
               {itemsWithRetur.map(item => {
                 const beholdning = item.antal_skib + item.antal_container;
                 return (
                   <tr key={item.id} className={`transition-colors group ${item.amountToReturn > 0 ? 'hover:bg-red-50/20 bg-red-50/5' : 'hover:bg-slate-50/50'}`}>
-                    <td className="p-5 font-mono text-sm text-slate-600 font-bold">{item.komponentnummer}</td>
-                    <td className="p-5 font-bold text-slate-700 text-lg">{item.objektkorttekst}</td>
-                    <td className="p-5 text-center text-slate-500 font-mono font-bold">{item.maengde}</td>
-                    <td className="p-5 text-center text-slate-600 font-mono font-bold">{beholdning}</td>
-                    <td className="p-5 text-center text-red-600 font-bold">{item.kassationsmetode}</td>
-                    <td className="p-3 text-center bg-red-50/30 border-l-2 border-red-100 shadow-sm">
+                    <td className="p-3 font-mono text-xs text-slate-600 font-bold">{item.komponentnummer}</td>
+                    <td className="p-3 font-bold text-slate-700 text-xs md:text-sm">{item.objektkorttekst}</td>
+                    <td className="p-3 text-center text-slate-500 font-mono font-bold text-xs">{item.maengde}</td>
+                    <td className="p-3 text-center text-slate-600 font-mono font-bold text-xs">{beholdning}</td>
+                    <td className="p-3 text-center text-red-600 font-bold text-xs">{item.kassationsmetode}</td>
+                    <td className="p-2 text-center bg-red-50/30 border-l border-red-100 shadow-sm">
                       <div className="flex justify-center">
                         <CounterBlock 
                           hideTitle 

@@ -542,56 +542,56 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-2 md:p-6 lg:p-8 font-sans pb-32">
+    <div className="min-h-screen bg-slate-100 p-2 md:p-4 lg:p-6 font-sans pb-20">
       <div className="max-w-[1400px] mx-auto">
         
         {/* APP HEADER */}
-        <header className="bg-slate-900 text-white p-4 md:p-6 rounded-2xl lg:rounded-xl shadow-xl mb-6 sticky top-2 z-50 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-blue-600">
+        <header className="bg-slate-900 text-white p-3 md:p-4 rounded-xl shadow-md mb-4 sticky top-2 z-50 flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-blue-600">
           <div className="flex items-center justify-between w-full md:w-auto">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-slate-800 rounded-lg hidden sm:block shadow-inner">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-slate-800 rounded-lg hidden sm:block shadow-inner">
                 {role === 'skib' ? <ShipIcon /> : <HelmIcon />}
               </div>
               <div>
-                <h1 className="text-xl md:text-2xl font-extrabold tracking-wide flex items-center gap-2">
-                  MHV 909 <span className="text-blue-400 font-medium">| {role === 'skib' ? 'Skib' : 'Fartøjsmester'}</span>
+                <h1 className="text-lg md:text-xl font-extrabold tracking-wide flex items-center gap-2">
+                  MHV 909 <span className="text-blue-400 font-medium text-sm md:text-base">| {role === 'skib' ? 'Skib' : 'Fartøjsmester'}</span>
                 </h1>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1">Lagerstyring</p>
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Lagerstyring</p>
               </div>
             </div>
-            <button onClick={handleLogout} className="md:hidden p-3 bg-slate-800 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"><LogoutIcon /></button>
+            <button onClick={handleLogout} className="md:hidden p-2 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"><LogoutIcon /></button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             {role === 'skib' && (
-              <div className="flex bg-slate-800 p-1.5 rounded-lg border border-slate-700">
-                <button onClick={() => setActiveTab('forbrug')} className={`flex-1 px-5 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'forbrug' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Forbrug</button>
-                <button onClick={() => setActiveTab('optaelling_skib')} className={`flex-1 px-5 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'optaelling_skib' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Optælling</button>
+              <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
+                <button onClick={() => setActiveTab('forbrug')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'forbrug' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Forbrug</button>
+                <button onClick={() => setActiveTab('optaelling_skib')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'optaelling_skib' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Optælling</button>
               </div>
             )}
 
             {role === 'fartøjsmester' && (
-              <div className="flex overflow-x-auto max-w-full md:flex-wrap bg-slate-800 p-1.5 rounded-lg border border-slate-700 gap-1 no-scrollbar whitespace-nowrap">
-                <button onClick={() => setActiveTab('lager')} className={`flex-1 min-w-[100px] md:min-w-0 px-4 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'lager' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Overblik</button>
-                <button onClick={() => setActiveTab('optaelling_mester')} className={`flex-1 min-w-[100px] md:min-w-0 px-4 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'optaelling_mester' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Optælling</button>
-                <button onClick={() => setActiveTab('bestilling')} className={`flex-1 min-w-[100px] md:min-w-0 px-4 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'bestilling' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Bestilling</button>
-                <button onClick={() => setActiveTab('afventer')} className={`flex-1 min-w-[140px] md:min-w-0 px-4 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'afventer' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Afventer Levering</button>
-                <button onClick={() => setActiveTab('plukliste')} className={`flex-1 min-w-[100px] md:min-w-0 px-4 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'plukliste' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Plukliste</button>
-                <button onClick={() => setActiveTab('kassation')} className={`flex-1 min-w-[100px] md:min-w-0 px-4 py-2.5 rounded-md font-bold text-sm transition-all ${activeTab === 'kassation' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>Kassation</button>
+              <div className="flex overflow-x-auto max-w-full md:flex-wrap bg-slate-800 p-1 rounded-lg border border-slate-700 gap-1 no-scrollbar whitespace-nowrap">
+                <button onClick={() => setActiveTab('lager')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'lager' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Overblik</button>
+                <button onClick={() => setActiveTab('optaelling_mester')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'optaelling_mester' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Optælling</button>
+                <button onClick={() => setActiveTab('bestilling')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'bestilling' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Bestilling</button>
+                <button onClick={() => setActiveTab('afventer')} className={`flex-1 min-w-[120px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'afventer' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Afventer</button>
+                <button onClick={() => setActiveTab('plukliste')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'plukliste' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Plukliste</button>
+                <button onClick={() => setActiveTab('kassation')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'kassation' ? 'bg-red-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Kassation</button>
               </div>
             )}
-            <button onClick={handleLogout} className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors font-bold text-sm border border-slate-700 shadow-sm"><LogoutIcon /> Log ud</button>
+            <button onClick={handleLogout} className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors font-bold text-xs md:text-sm border border-slate-700 shadow-sm"><LogoutIcon /> Log ud</button>
           </div>
         </header>
 
         {loading ? (
-          <div className="text-center p-16 text-slate-500 text-xl font-bold animate-pulse">Henter data fra databasen...</div>
+          <div className="text-center p-12 text-slate-500 text-lg font-bold animate-pulse">Henter data fra databasen...</div>
         ) : (
           <>
             {/* SØGEFELT */}
             {(activeTab !== 'bestilling' && activeTab !== 'afventer' && activeTab !== 'plukliste') && (
-              <div className="mb-6">
-                <input type="text" placeholder="Søg på varenr eller komponentnavn..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-4 md:p-5 rounded-xl border-2 border-slate-200 bg-white text-slate-800 shadow-sm focus:outline-none focus:border-blue-500 text-lg transition-colors" />
+              <div className="mb-4">
+                <input type="text" placeholder="Søg på varenr eller komponentnavn..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm focus:outline-none focus:border-blue-500 text-sm md:text-base transition-colors" />
               </div>
             )}
 
