@@ -28,7 +28,7 @@ export type Anmaerkning = {
   telefon: string;
   anmaerkning: string;
   forbrug: boolean;
-  status: 'Åben' | 'Lukket';
+  status: 'Åben' | 'Set' | 'Lukket';
   fartoejsmester_navn?: string;
   kvittering_kommentar?: string;
   created_at?: string;
