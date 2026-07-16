@@ -11,9 +11,13 @@ import {
   LagerOverblikTab,
   OptaellingMesterTab,
   BestillingskurvTab,
-    AfventerLeveringTab,
+  AfventerLeveringTab,
   PluklisteTab,
-  KassationTab
+  KassationTab,
+  AnmaerkningerTab,
+  AnmaerkningerMesterTab,
+  PraktiskInfoTab,
+  MoenstringslisteTab
 } from './components'
 import { generateForsyningsblanket, generateLagerlistePDF } from './utils/pdfGenerator'
 
@@ -28,15 +32,15 @@ export default function App() {
   // Inline Bestilling State til "Overblik" fanen
   const [orderInputActive, setOrderInputActive] = useState<Record<number, { amount: number, lenh: string }>>({})
 
-  // Auth states
-  const [role, setRole] = useState<Role>(null)
+  // Auth states - default to standard user skib
+  const [role, setRole] = useState<Role>('skib')
   const [loginStep, setLoginStep] = useState<'role' | 'pin'>('role')
   const [selectedRole, setSelectedRole] = useState<Role>(null)
   const [pin, setPin] = useState('')
   const [loginError, setLoginError] = useState('')
 
-  // Tab states
-  const [activeTab, setActiveTab] = useState<'forbrug' | 'optaelling_skib' | 'lager' | 'optaelling_mester' | 'bestilling' | 'afventer' | 'plukliste' | 'kassation'>('forbrug')
+  // Tab states - default to optaelling_skib
+  const [activeTab, setActiveTab] = useState<'forbrug' | 'optaelling_skib' | 'lager' | 'optaelling_mester' | 'bestilling' | 'afventer' | 'plukliste' | 'kassation' | 'anmaerkninger' | 'praktisk_info' | 'moenstringsliste'>('optaelling_skib')
 
   // Transaction states for forms
   const [forbrug, setForbrug] = useState<Record<number, number>>({})
@@ -61,6 +65,11 @@ export default function App() {
           const normRaw = String(item.mængde || item.Mængde || '0').replace(',', '.')
           const parsedNorm = parseFloat(normRaw) || 0
 
+          // Check if item is a hygiene article
+          const text = String(item.objektkorttekst || item.Objektkorttekst || '').toLowerCase();
+          const isHygiejne = text.includes('hygiejne') || text.includes('sæbe') || text.includes('papir') || text.includes('aftørring') || text.includes('håndklæde') || text.includes('toiletpapir') || text.includes('klude') || text.includes('svamp');
+          const defaultLenh = item.me || item.ME || item.lenh || item.Lenh || 'EA';
+
           return {
             id: item.nr || item.id,
             nr: item.nr,
@@ -68,12 +77,13 @@ export default function App() {
             objektkorttekst: item.objektkorttekst || item.Objektkorttekst || 'Mangler Tekst',
             antal_skib: item.antal_skib || item.Antal_skib || 0,
             antal_container: item.antal_container || item.Antal_container || 0,
-                        Koncernpris: String(item.koncernpris || item.Koncernpris || '0').replace(',', '.'),
+            Koncernpris: String(item.koncernpris || item.Koncernpris || '0').replace(',', '.'),
             maengde: parsedNorm,
             bestilt: item.antal_bestilt || item.bestilt || item.Bestilt || 0,
-            lenh: item.me || item.ME || item.lenh || item.Lenh || 'EA',
+            lenh: isHygiejne ? 'PK' : defaultLenh,
             antal_retur: item.antal_retur || item.Antal_retur || 0,
-            kassationsmetode: item.kassationsmetode || item.Kassationsmetode || ''
+            kassationsmetode: item.kassationsmetode || item.Kassationsmetode || '',
+            udloebsdato: item.udloebsdato || ''
           }
         }) || []
         
@@ -89,7 +99,8 @@ export default function App() {
     const original = originalItems.find(o => o.id === item.id)
     return original && (original.antal_skib !== item.antal_skib || 
                         original.antal_container !== item.antal_container ||
-                        original.bestilt !== item.bestilt)
+                        original.bestilt !== item.bestilt ||
+                        original.udloebsdato !== item.udloebsdato)
   })
 
   useEffect(() => {
@@ -114,7 +125,7 @@ export default function App() {
       setPin('')
       setLoginError('')
       setLoginStep('role')
-      if (selectedRole === 'skib') setActiveTab('forbrug')
+      if (selectedRole === 'skib') setActiveTab('optaelling_skib')
       if (selectedRole === 'fartøjsmester') setActiveTab('lager')
     } else {
       setLoginError('Forkert PIN-kode (prøv 0000)')
@@ -125,13 +136,32 @@ export default function App() {
     if (hasUnsavedChanges || Object.keys(forbrug).length > 0 || Object.keys(godkendelser).length > 0) {
       if(!window.confirm('Du har ikke-gemte ændringer. Vil du stadig logge ud?')) return;
     }
-    setRole(null)
+    setRole('skib') // Default back to skib
     setLoginStep('role')
     setSelectedRole(null)
     setPin('')
     setForbrug({})
     setGodkendelser({})
-    setItems(JSON.parse(JSON.stringify(originalItems))) 
+    setItems(JSON.parse(JSON.stringify(originalItems)))
+    setActiveTab('optaelling_skib')
+  }
+
+  const handleSwitchToMester = () => {
+    if (hasUnsavedChanges || Object.keys(forbrug).length > 0 || Object.keys(godkendelser).length > 0) {
+      if(!window.confirm('Du har ikke-gemte ændringer. Vil du logge ud og skifte?')) return;
+    }
+    setSelectedRole('fartøjsmester')
+    setLoginStep('pin')
+    setRole(null)
+  }
+
+  const handleDateChange = (id: number, date: string) => {
+    setItems(prevItems => prevItems.map(item => {
+      if (item.id === id) {
+        return { ...item, udloebsdato: date }
+      }
+      return item
+    }))
   }
 
   // --- Handlers for general edits ---
@@ -255,7 +285,10 @@ export default function App() {
     // Parallelisér updates
     const updatePromises = itemsToUpdate.map(item => 
         supabase.from('items').update({
-            antal_skib: item.antal_skib, antal_container: item.antal_container, antal_bestilt: item.bestilt 
+            antal_skib: item.antal_skib, 
+            antal_container: item.antal_container, 
+            antal_bestilt: item.bestilt,
+            udloebsdato: item.udloebsdato || null
         }).eq('nr', item.nr)
     );
 
@@ -537,6 +570,13 @@ export default function App() {
         setPin={setPin}
         setLoginError={setLoginError}
         handleLogin={handleLogin}
+        onCancel={() => {
+          setRole('skib')
+          setLoginStep('role')
+          setSelectedRole(null)
+          setPin('')
+          setLoginError('')
+        }}
       />
     )
   }
@@ -561,14 +601,19 @@ export default function App() {
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Lagerstyring</p>
               </div>
             </div>
-            <button onClick={handleLogout} className="md:hidden p-2 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"><LogoutIcon /></button>
+            {role === 'skib' ? (
+              <button onClick={handleSwitchToMester} className="md:hidden p-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition-colors" title="Skift til Farmer"><HelmIcon /></button>
+            ) : (
+              <button onClick={handleLogout} className="md:hidden p-2 bg-slate-800 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"><LogoutIcon /></button>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             {role === 'skib' && (
-              <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-                <button onClick={() => setActiveTab('forbrug')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'forbrug' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Forbrug</button>
-                <button onClick={() => setActiveTab('optaelling_skib')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'optaelling_skib' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Optælling</button>
+              <div className="flex flex-wrap bg-slate-800 p-1 rounded-lg border border-slate-700 gap-1">
+                <button onClick={() => setActiveTab('optaelling_skib')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'optaelling_skib' || activeTab === 'forbrug' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>1. Optælling & Forbrug</button>
+                <button onClick={() => setActiveTab('anmaerkninger')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'anmaerkninger' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>2. Anmærkningsbog</button>
+                <button onClick={() => setActiveTab('praktisk_info')} className={`flex-1 px-4 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'praktisk_info' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>3. Praktisk Info</button>
               </div>
             )}
 
@@ -580,14 +625,21 @@ export default function App() {
                 <button onClick={() => setActiveTab('afventer')} className={`flex-1 min-w-[120px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'afventer' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Afventer</button>
                 <button onClick={() => setActiveTab('plukliste')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'plukliste' ? 'bg-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Plukliste</button>
                 <button onClick={() => setActiveTab('kassation')} className={`flex-1 min-w-[80px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'kassation' ? 'bg-red-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Kassation</button>
+                <button onClick={() => setActiveTab('anmaerkninger')} className={`flex-1 min-w-[120px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'anmaerkninger' ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Anmærkninger</button>
+                <button onClick={() => setActiveTab('moenstringsliste')} className={`flex-1 min-w-[120px] md:min-w-0 px-3 py-1.5 rounded-md font-bold text-xs md:text-sm transition-all ${activeTab === 'moenstringsliste' ? 'bg-cyan-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>Mønstringsliste</button>
               </div>
             )}
-            <button onClick={handleLogout} className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors font-bold text-xs md:text-sm border border-slate-700 shadow-sm"><LogoutIcon /> Log ud</button>
+            
+            {role === 'skib' ? (
+              <button onClick={handleSwitchToMester} className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-bold text-xs md:text-sm shadow-sm"><HelmIcon /> Fartøjsmester Login</button>
+            ) : (
+              <button onClick={handleLogout} className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors font-bold text-xs md:text-sm border border-slate-700 shadow-sm"><LogoutIcon /> Skift Bruger (Skib)</button>
+            )}
           </div>
         </header>
 
         {/* SØGEFELT */}
-        {(activeTab !== 'bestilling' && activeTab !== 'afventer' && activeTab !== 'plukliste') && (
+        {(activeTab !== 'bestilling' && activeTab !== 'afventer' && activeTab !== 'plukliste' && activeTab !== 'praktisk_info' && activeTab !== 'moenstringsliste') && (
           <div className="mb-2">
             <input type="text" placeholder="Søg på varenr eller komponentnavn..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 rounded-lg border border-slate-200 bg-white text-slate-800 shadow-sm focus:outline-none focus:border-blue-500 text-sm md:text-base transition-colors" />
           </div>
@@ -607,13 +659,20 @@ export default function App() {
             )}
 
             {activeTab === 'optaelling_skib' && (
-              <OptaellingSkibTab 
-                groupedItems={groupedItems} expandedSets={expandedSets} saving={saving} hasUnsavedChanges={hasUnsavedChanges}
-                handleSaveChangesLager={handleSaveChangesLager} toggleSet={toggleSet} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} 
-              />
+              <div className="space-y-6">
+                {/* OPTÆLLING OG FORBRUG NESTED SWITCHER */}
+                <div className="flex bg-slate-200 p-1 rounded-lg border border-slate-300 max-w-md">
+                  <button onClick={() => setActiveTab('optaelling_skib')} className="flex-1 py-1.5 rounded-md font-bold text-xs md:text-sm bg-white text-slate-800 shadow">1. Foretag Optælling</button>
+                  <button onClick={() => setActiveTab('forbrug')} className="flex-1 py-1.5 rounded-md font-bold text-xs md:text-sm text-slate-500 hover:text-slate-800">2. Registrer Forbrug</button>
+                </div>
+                <OptaellingSkibTab 
+                  groupedItems={groupedItems} expandedSets={expandedSets} saving={saving} hasUnsavedChanges={hasUnsavedChanges}
+                  handleSaveChangesLager={handleSaveChangesLager} toggleSet={toggleSet} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} 
+                />
+              </div>
             )}
 
-                        {activeTab === 'lager' && (
+            {activeTab === 'lager' && (
               <LagerOverblikTab 
                 groupedItems={groupedItems} expandedSets={expandedSets} orderInputActive={orderInputActive}
                 generatePDF={(type) => generateLagerlistePDF(type, items)} toggleSet={toggleSet} setOrderInputActive={setOrderInputActive} handleAddToCart={handleAddToCart}
@@ -623,7 +682,7 @@ export default function App() {
             {activeTab === 'optaelling_mester' && (
               <OptaellingMesterTab 
                 groupedItems={groupedItems} expandedSets={expandedSets} saving={saving} hasUnsavedChanges={hasUnsavedChanges} originalItems={originalItems}
-                handleSaveChangesLager={handleSaveChangesLager} toggleSet={toggleSet} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput}
+                handleSaveChangesLager={handleSaveChangesLager} toggleSet={toggleSet} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} handleDateChange={handleDateChange}
               />
             )}
 
@@ -641,7 +700,7 @@ export default function App() {
               />
             )}
 
-                        {activeTab === 'plukliste' && (
+            {activeTab === 'plukliste' && (
               <PluklisteTab 
                 items={items} saving={saving} handleMoveAllToShip={handleMoveAllToShip} handleMoveToShip={handleMoveToShip}
               />
@@ -649,6 +708,18 @@ export default function App() {
 
             {activeTab === 'kassation' && (
               <KassationTab items={items} />
+            )}
+
+            {activeTab === 'anmaerkninger' && (
+              role === 'skib' ? <AnmaerkningerTab /> : <AnmaerkningerMesterTab />
+            )}
+
+            {activeTab === 'praktisk_info' && (
+              <PraktiskInfoTab />
+            )}
+
+            {activeTab === 'moenstringsliste' && (
+              <MoenstringslisteTab />
             )}
 
           </>

@@ -9,3 +9,7 @@ export * from './BestillingskurvTab';
 export * from './AfventerLeveringTab';
 export * from './PluklisteTab';
 export * from './KassationTab';
+export * from './AnmaerkningsbogTab';
+export * from './AnmaerkningerMesterTab';
+export * from './PraktiskInfoTab';
+export * from './MoenstringslisteTab';

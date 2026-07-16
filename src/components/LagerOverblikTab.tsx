@@ -78,7 +78,11 @@ const RenderOverblikItem = ({ item, orderInputActive, setOrderInputActive, handl
     <div className="p-2.5 md:p-3 bg-white border border-slate-100 rounded-md flex flex-col md:flex-row md:items-center justify-between gap-3 hover:border-slate-300">
       <div className="flex-1">
         <span className="text-[10px] md:text-xs font-mono mb-1 block uppercase text-slate-400 font-bold">
-          Varenr: {item.komponentnummer} <span className="ml-2 text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[9px] md:text-[10px]">Norm: {item.maengde}</span>
+          Varenr: {item.komponentnummer} 
+          <span className="ml-2 text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-[9px] md:text-[10px]">Norm: {item.maengde}</span>
+          {item.udloebsdato && (
+            <span className="ml-2 text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded text-[9px] md:text-[10px] font-bold">Udløb: {item.udloebsdato}</span>
+          )}
         </span>
         <h3 className="text-xs md:text-sm font-bold text-slate-800 leading-snug">{item.objektkorttekst}</h3>
       </div>

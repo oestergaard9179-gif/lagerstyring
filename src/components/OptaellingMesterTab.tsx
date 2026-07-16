@@ -12,6 +12,7 @@ type OptaellingMesterTabProps = {
   toggleSet: (id: number) => void;
   handleCountChange: (id: number, type: 'skib' | 'container' | 'bestilt', delta: number) => void;
   handleDirectInput: (id: number, type: 'skib' | 'container' | 'bestilt', newValue: number) => void;
+  handleDateChange: (id: number, date: string) => void;
 };
 
 export const OptaellingMesterTab: React.FC<OptaellingMesterTabProps> = ({
@@ -24,6 +25,7 @@ export const OptaellingMesterTab: React.FC<OptaellingMesterTabProps> = ({
   toggleSet,
   handleCountChange,
   handleDirectInput,
+  handleDateChange,
 }) => {
   return (
     <div className="space-y-4">
@@ -54,13 +56,13 @@ export const OptaellingMesterTab: React.FC<OptaellingMesterTabProps> = ({
               </div>
               {!isSet && (
                 <div className="p-2 md:p-3 border-t border-slate-100">
-                  <RenderEditableItem item={group.parent} originalItems={originalItems} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} />
+                  <RenderEditableItem item={group.parent} originalItems={originalItems} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} handleDateChange={handleDateChange} />
                 </div>
               )}
               {isExpanded && group.children.length > 0 && (
                 <div className="p-2 md:p-3 bg-slate-100 space-y-2 border-t border-slate-200">
                   {group.children.map(child => (
-                    <RenderEditableItem key={child.id} item={child} originalItems={originalItems} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} />
+                    <RenderEditableItem key={child.id} item={child} originalItems={originalItems} handleCountChange={handleCountChange} handleDirectInput={handleDirectInput} handleDateChange={handleDateChange} />
                   ))}
                 </div>
               )}
@@ -72,17 +74,29 @@ export const OptaellingMesterTab: React.FC<OptaellingMesterTabProps> = ({
   );
 };
 
-const RenderEditableItem = ({ item, originalItems, handleCountChange, handleDirectInput }: { item: Item, originalItems: Item[], handleCountChange: (id: number, type: 'skib' | 'container' | 'bestilt', delta: number) => void, handleDirectInput: (id: number, type: 'skib' | 'container' | 'bestilt', newValue: number) => void }) => {
-  const isEdited = originalItems.find(o => o.id === item.id)?.antal_skib !== item.antal_skib || originalItems.find(o => o.id === item.id)?.antal_container !== item.antal_container;
+const RenderEditableItem = ({ item, originalItems, handleCountChange, handleDirectInput, handleDateChange }: { item: Item, originalItems: Item[], handleCountChange: (id: number, type: 'skib' | 'container' | 'bestilt', delta: number) => void, handleDirectInput: (id: number, type: 'skib' | 'container' | 'bestilt', newValue: number) => void, handleDateChange: (id: number, date: string) => void }) => {
+  const orig = originalItems.find(o => o.id === item.id);
+  const isEdited = orig?.antal_skib !== item.antal_skib || orig?.antal_container !== item.antal_container || orig?.udloebsdato !== item.udloebsdato;
   return (
-    <div className={`p-2.5 md:p-3 bg-white border rounded-md flex flex-col md:flex-row justify-between items-start md:items-center gap-3 ${isEdited ? 'border-emerald-400 bg-emerald-50/10' : 'border-slate-100'}`}>
+    <div className={`p-2.5 md:p-3 bg-white border rounded-md flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3 ${isEdited ? 'border-emerald-400 bg-emerald-50/10' : 'border-slate-100'}`}>
       <div className="flex-1 w-full">
         <span className="text-[10px] md:text-xs font-mono mb-1 block uppercase text-slate-400 font-bold">Varenr: {item.komponentnummer}</span>
         <h3 className="text-xs md:text-sm font-bold text-slate-800 leading-snug">{item.objektkorttekst}</h3>
       </div>
-      <div className="flex gap-2 shrink-0 bg-slate-50/50 p-1.5 rounded-md border border-slate-100 self-start md:self-auto">
-        <CounterBlock title="Skib" value={item.antal_skib} onMinus={() => handleCountChange(item.id, 'skib', -1)} onPlus={() => handleCountChange(item.id, 'skib', 1)} onChange={(val: number) => handleDirectInput(item.id, 'skib', val)} maxClass="bg-white" />
-        <CounterBlock title="Container" value={item.antal_container} onMinus={() => handleCountChange(item.id, 'container', -1)} onPlus={() => handleCountChange(item.id, 'container', 1)} onChange={(val: number) => handleDirectInput(item.id, 'container', val)} maxClass="bg-white" />
+      <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
+          <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Udløbsdato</label>
+          <input
+            type="date"
+            value={item.udloebsdato || ''}
+            onChange={(e) => handleDateChange(item.id, e.target.value)}
+            className="p-1.5 text-xs font-bold border border-slate-300 rounded focus:border-blue-500 focus:outline-none bg-white text-slate-800"
+          />
+        </div>
+        <div className="flex gap-2 shrink-0 bg-slate-50/50 p-1.5 rounded-md border border-slate-100 self-start xl:self-auto">
+          <CounterBlock title="Skib" value={item.antal_skib} onMinus={() => handleCountChange(item.id, 'skib', -1)} onPlus={() => handleCountChange(item.id, 'skib', 1)} onChange={(val: number) => handleDirectInput(item.id, 'skib', val)} maxClass="bg-white" />
+          <CounterBlock title="Container" value={item.antal_container} onMinus={() => handleCountChange(item.id, 'container', -1)} onPlus={() => handleCountChange(item.id, 'container', 1)} onChange={(val: number) => handleDirectInput(item.id, 'container', val)} maxClass="bg-white" />
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ type LoginScreenProps = {
   setPin: (pin: string) => void;
   setLoginError: (error: string) => void;
   handleLogin: (e: React.FormEvent) => void;
+  onCancel?: () => void;
 };
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
@@ -24,6 +25,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   setPin,
   setLoginError,
   handleLogin,
+  onCancel,
 }) => {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
@@ -52,7 +54,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               {loginError && <p className="text-red-500 text-sm mt-3 font-semibold text-center">{loginError}</p>}
             </div>
             <div className="flex gap-3">
-              <button type="button" onClick={() => { setLoginStep('role'); setPin(''); setLoginError(''); }} className="px-4 py-4 bg-slate-100 text-slate-700 font-bold rounded-xl w-1/3 hover:bg-slate-200 transition-colors">Tilbage</button>
+              <button type="button" onClick={() => { if (onCancel) { onCancel(); } else { setLoginStep('role'); setPin(''); setLoginError(''); } }} className="px-4 py-4 bg-slate-100 text-slate-700 font-bold rounded-xl w-1/3 hover:bg-slate-200 transition-colors">Tilbage</button>
               <button type="submit" className="px-4 py-4 bg-blue-600 text-white font-bold rounded-xl w-2/3 hover:bg-blue-700 shadow-lg transition-all">Log ind</button>
             </div>
           </form>

@@ -11,6 +11,7 @@ export type Item = {
   lenh?: string;
   antal_retur?: number;
   kassationsmetode?: string;
+  udloebsdato?: string;
 }
 
 export type GroupedItem = {
@@ -19,3 +20,16 @@ export type GroupedItem = {
 }
 
 export type Role = 'skib' | 'fartøjsmester' | null;
+
+export type Anmaerkning = {
+  id?: number;
+  navn: string;
+  ma_nummer: string;
+  telefon: string;
+  anmaerkning: string;
+  forbrug: boolean;
+  status: 'Åben' | 'Lukket';
+  fartoejsmester_navn?: string;
+  kvittering_kommentar?: string;
+  created_at?: string;
+}
